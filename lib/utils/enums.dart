@@ -1,0 +1,1 @@
+enum CircularAvatarType { DEFAULT, SVG_ASSET, IMG_ASSET, MEMORY, NETWORK }

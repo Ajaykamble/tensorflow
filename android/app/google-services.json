@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "11987503557",
+    "project_id": "malaria-detection-iitm",
+    "storage_bucket": "malaria-detection-iitm.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:11987503557:android:8e3751ca01fc57db5a23ac",
+        "android_client_info": {
+          "package_name": "com.example.newapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjo5BBD-xLNsLe2lGUTLr-WSWGXKkAbfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
