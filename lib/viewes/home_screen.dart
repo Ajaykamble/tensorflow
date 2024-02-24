@@ -54,7 +54,13 @@ class _DoctorAnimationScreenState extends State<DoctorAnimationScreen> {
       _profileBytes.value = ImageModel(fileType: p.extension(fileName).replaceAll(".", ""), byteImage: bytes);
 
       var image = img.decodeImage(bytes);
-      var result = await imageClassificationHelper.inferenceImage(image!);
+      // image = img.copyResize(image, 640, 640);
+      image = img.copyResize(image!, width: 640, height: 640);
+      log("${image.height}");
+      log("my inference");
+
+
+      var result = await imageClassificationHelper.inferenceImage(image);
       log("${result}");
     }
   }
@@ -67,14 +73,14 @@ class _DoctorAnimationScreenState extends State<DoctorAnimationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser!;
+    // final user = FirebaseAuth.instance.currentUser!;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Doctor Animation'),
         actions: [
           InkWell(
               onTap: () {
-                showProfileMenu(context, user);
+                // showProfileMenu(context, user);
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),

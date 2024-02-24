@@ -26,11 +26,11 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 
 class ImageClassificationHelper {
   //maleria
-  //static const modelPath = 'assets/tensor/model.tflite';
-  //static const labelsPath = 'assets/tensor/labels.txt';
+  static const modelPath = 'assets/tensor/model.tflite';
+  static const labelsPath = 'assets/tensor/labels.txt';
   //other
-  static const modelPath = 'assets/models/mobilenet_quant.tflite';
-  static const labelsPath = 'assets/models/labels.txt';
+  // static const modelPath = 'assets/models/mobilenet_quant.tflite';
+  // static const labelsPath = 'assets/models/labels.txt';
 
   late final Interpreter interpreter;
   late final List<String> labels;
@@ -61,11 +61,11 @@ class ImageClassificationHelper {
     // Load model from assets
     interpreter = await Interpreter.fromAsset(modelPath);
     
-    // Get tensor input shape [1, 224, 224, 3]
+    // Get tensor input shape [1, 224, 224, 3] [1, 3, 640, 640]
 
     log("input length ${interpreter.getInputTensors().length}");
 
-    inputTensor = interpreter.getInputTensors().last;
+    inputTensor = interpreter.getInputTensors().last;   // Input shape
     log("input ${inputTensor}");
     // Get tensor output shape [1, 1001]
     outputTensor = interpreter.getOutputTensors().last;

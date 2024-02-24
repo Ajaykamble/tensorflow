@@ -54,16 +54,25 @@ class IsolateInference {
     await for (final InferenceModel isolateModel in port) {
       image_lib.Image? img;
       img = isolateModel.image;
+      log("my isolate model: ${isolateModel.inputShape}");
+      log("my isolate 2 model: ${isolateModel.inputShape[2]}");
+      log("my isolate 3 model: ${isolateModel.inputShape[3]}");
+      log("my isolate 0 model: ${isolateModel.inputShape[0]}");
+      log("my input image size: $img");
 
       // resize original image to match model shape.
       image_lib.Image imageInput = image_lib.copyResize(
         img!,
         width: isolateModel.inputShape[1],
         height: isolateModel.inputShape[2],
+        maintainAspect: true
       );
+
+      log("my input image size after: $img");
 
       log("${imageInput.height}");
       log("start inference");
+      // log("Stop inference");
 
       final imageMatrix = List.generate(
         imageInput.height,
