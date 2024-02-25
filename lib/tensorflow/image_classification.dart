@@ -88,22 +88,23 @@ class ImageClassificationHelper {
     await isolateInference.start();
   }
 
-  Future<Map<String, double>> _inference(InferenceModel inferenceModel) async {
+  Future<List<List<double>>> _inference(InferenceModel inferenceModel) async {
     ReceivePort responsePort = ReceivePort();
     isolateInference.sendPort.send(inferenceModel..responsePort = responsePort.sendPort);
     // get inference result.
     var results = await responsePort.first;
+    log("result in _inference: ${results.last}");
     return results;
   }
 
   // inference camera frame
-  Future<Map<String, double>> inferenceCameraFrame(CameraImage cameraImage) async {
+  Future<List<List<double>>> inferenceCameraFrame(CameraImage cameraImage) async {
     var isolateModel = InferenceModel(cameraImage, null, interpreter.address, labels, inputTensor.shape, outputTensor.shape);
     return _inference(isolateModel);
   }
 
   // inference still image
-  Future<Map<String, double>> inferenceImage(Image image) async {
+  Future<List<List<double>>> inferenceImage(Image image) async {
     var isolateModel = InferenceModel(null, image, interpreter.address, labels, inputTensor.shape, outputTensor.shape);
     return _inference(isolateModel);
   }

@@ -19,6 +19,7 @@ import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
 
 class DoctorAnimationScreen extends StatefulWidget {
   @override
@@ -27,7 +28,8 @@ class DoctorAnimationScreen extends StatefulWidget {
 
 class _DoctorAnimationScreenState extends State<DoctorAnimationScreen> {
   final ValueNotifier<ImageModel?> _profileBytes = ValueNotifier<ImageModel?>(null);
-   XFile? image1;
+  XFile? image1;
+  final ImagePicker picker = ImagePicker();
   var imageClassificationHelper = ImageClassificationHelper();
 
   @override
@@ -46,8 +48,9 @@ class _DoctorAnimationScreenState extends State<DoctorAnimationScreen> {
   }
 
   void onAddAttachmentClick() async {
-    XFile? attachment = await CommonFunctions.chooseImage(context: context);
-
+    ImageSource media = ImageSource.gallery;
+    // XFile? attachment = await CommonFunctions.chooseImage(context: context);
+    var attachment = await picker.pickImage(source: media);
     if (attachment != null) {
       String fileName = attachment.name;
       Uint8List bytes = await attachment.readAsBytes();
@@ -58,13 +61,16 @@ class _DoctorAnimationScreenState extends State<DoctorAnimationScreen> {
       image = img.copyResize(image!, width: 640, height: 640);
       log("${image.height}");
       log("my inference");
-
-
-      var result = await imageClassificationHelper.inferenceImage(image);
-      log("${result}");
       setState(() {
+        log("set state: ${attachment}");
         image1 = attachment;
       });
+      var result = await imageClassificationHelper.inferenceImage(image);
+      log("onAttached Result: ${result.last}");
+
+
+      // draw on image
+  
     }
   }
 

@@ -134,9 +134,9 @@ class IsolateInference {
       interpreter.run(input, output);
       log("After Result");
       // Get first output tensor
-      final result = output.first;
+      final result = output;
       log("Result Shape: ${output.length}, ${output[0].length}");
-      log("Result: ${result}");
+      // log("Result: ${result}");
       // int maxScore = result.reduce((a, b) => a + b);
       // // Set classification map {label: points}
       // var classification = <String, double>{};
@@ -146,7 +146,7 @@ class IsolateInference {
       //     classification[isolateModel.labels[i]] = result[i].toDouble() / maxScore.toDouble();
       //   }
       // }
-      // isolateModel.responsePort.send(classification);
+      isolateModel.responsePort.send(result);
     }
   }
 }
