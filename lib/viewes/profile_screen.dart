@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -30,7 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ValueNotifier<ImageModel?> _profileBytes = ValueNotifier<ImageModel?>(null);
   final ImagePicker _picker = ImagePicker();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
+  XFile? image;
   void onAddAttachmentClick() async {
     final XFile? attachment = await _picker.pickImage(source: ImageSource.gallery);
 
@@ -131,6 +132,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       onAddAttachmentClick();
                                     },
                                   ),
+              image != null
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.file(
+                        //to show image, you type like this.
+                        File(image!.path),
+                        fit: BoxFit.cover,
+                        width: MediaQuery.of(context).size.width,
+                        height: 300,
+                      ),
+                    ),
+                  )
+                : const Text(
+                    "No Image",
+                    style: TextStyle(fontSize: 20),
+                  )
                                 ],
                               ),
                             );

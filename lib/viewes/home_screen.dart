@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
-
+import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +27,7 @@ class DoctorAnimationScreen extends StatefulWidget {
 
 class _DoctorAnimationScreenState extends State<DoctorAnimationScreen> {
   final ValueNotifier<ImageModel?> _profileBytes = ValueNotifier<ImageModel?>(null);
-
+   XFile? image1;
   var imageClassificationHelper = ImageClassificationHelper();
 
   @override
@@ -52,7 +52,7 @@ class _DoctorAnimationScreenState extends State<DoctorAnimationScreen> {
       String fileName = attachment.name;
       Uint8List bytes = await attachment.readAsBytes();
       _profileBytes.value = ImageModel(fileType: p.extension(fileName).replaceAll(".", ""), byteImage: bytes);
-
+  
       var image = img.decodeImage(bytes);
       // image = img.copyResize(image, 640, 640);
       image = img.copyResize(image!, width: 640, height: 640);
@@ -62,6 +62,9 @@ class _DoctorAnimationScreenState extends State<DoctorAnimationScreen> {
 
       var result = await imageClassificationHelper.inferenceImage(image);
       log("${result}");
+      setState(() {
+        image1 = attachment;
+      });
     }
   }
 
@@ -133,6 +136,27 @@ class _DoctorAnimationScreenState extends State<DoctorAnimationScreen> {
                   ),
                 ),
               ),
+              
+              image1 != null
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.file(
+                        //to show image, you type like this.
+                        File(image1!.path),
+                        fit: BoxFit.cover,
+                        width: MediaQuery.of(context).size.width,
+                        height: 300,
+                      ),
+                    ),
+                  )
+                : const Text(
+                    "No Image",
+                    style: TextStyle(fontSize: 20),
+                  )
+              
+              ,
               const Text("OR "),
               Padding(
                 padding: const EdgeInsets.all(20.0),
