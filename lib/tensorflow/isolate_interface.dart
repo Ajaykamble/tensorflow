@@ -63,8 +63,8 @@ class IsolateInference {
       // resize original image to match model shape.
       image_lib.Image imageInput = image_lib.copyResize(
         img!,
-        width: isolateModel.inputShape[1],
-        height: isolateModel.inputShape[2],
+        width: isolateModel.inputShape[2],
+        height: isolateModel.inputShape[3],
         maintainAspect: true
       );
 
@@ -74,40 +74,79 @@ class IsolateInference {
       log("start inference");
       // log("Stop inference");
 
+      // final imageMatrix = List.generate(
+      //   imageInput.height,
+      //   (y) => List.generate(
+      //     imageInput.width,
+      //     (x) {
+      //       final pixel = imageInput.getPixel(x, y);
+      //       return [pixel.r, pixel.g, pixel.b];
+      //     },
+      //   ),
+      // );
+
+
       final imageMatrix = List.generate(
-        imageInput.height,
-        (y) => List.generate(
-          imageInput.width,
-          (x) {
-            final pixel = imageInput.getPixel(x, y);
-            return [pixel.r, pixel.g, pixel.b];
-          },
+        3,
+        (c) => List.generate(
+          imageInput.height,
+          (y) => List.generate(
+            imageInput.width,
+            (x) {
+              final pixel = imageInput.getPixel(x, y);
+              return pixel[c]/255;
+            },
+          ),
         ),
       );
+
+      log("${imageMatrix.length}");
+
 
       log("${imageMatrix.length}");
       
 
       // Set tensor input [1, 224, 224, 3]
       final input = [imageMatrix];
+      log("input image: ${input.length}, ${input[0].length}, ${input[0][0].length}, ${input[0][0][0].length}");
+      log("input image values: ${input[0][0][0].sublist(0, 10)}");
+      // log("input image values: ${input[0][0].sublist(0, 10)}");
       log("GOR INPUT");
+      log("isolateModel.outputShape: ${isolateModel.outputShape}");
       // Set tensor output [1, 1001]
-      final output = [List<int>.filled(isolateModel.outputShape[1], 0)];
+      // final output = [List<int>.filled(isolateModel.outputShape[1], 0)];
+      // final List<List<double>> output = [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]];
+      
+      List<List<double>> output = List.generate(100, (index) {
+        return List<double>.filled(7, 0.0);
+      });
+
+      
+      // log("output: ${output}");
+      // List<List<int>> output = List.generate(
+      //     100, (_) => List<int>.filled(7, 0)
+      // );
+
+
       // // Run inference
       Interpreter interpreter = Interpreter.fromAddress(isolateModel.interpreterAddress);
+      log("Before Result");
       interpreter.run(input, output);
+      log("After Result");
       // Get first output tensor
       final result = output.first;
-      int maxScore = result.reduce((a, b) => a + b);
-      // Set classification map {label: points}
-      var classification = <String, double>{};
-      for (var i = 0; i < result.length; i++) {
-        if (result[i] != 0) {
-          // Set label: points
-          classification[isolateModel.labels[i]] = result[i].toDouble() / maxScore.toDouble();
-        }
-      }
-      isolateModel.responsePort.send(classification);
+      log("Result Shape: ${output.length}, ${output[0].length}");
+      log("Result: ${result}");
+      // int maxScore = result.reduce((a, b) => a + b);
+      // // Set classification map {label: points}
+      // var classification = <String, double>{};
+      // for (var i = 0; i < result.length; i++) {
+      //   if (result[i] != 0) {
+      //     // Set label: points
+      //     classification[isolateModel.labels[i]] = result[i].toDouble() / maxScore.toDouble();
+      //   }
+      // }
+      // isolateModel.responsePort.send(classification);
     }
   }
 }
