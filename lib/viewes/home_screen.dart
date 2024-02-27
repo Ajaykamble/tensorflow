@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
-
+import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +19,7 @@ import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
 
 class DoctorAnimationScreen extends StatefulWidget {
   @override
@@ -27,7 +28,8 @@ class DoctorAnimationScreen extends StatefulWidget {
 
 class _DoctorAnimationScreenState extends State<DoctorAnimationScreen> {
   final ValueNotifier<ImageModel?> _profileBytes = ValueNotifier<ImageModel?>(null);
-
+  XFile? image1;
+  final ImagePicker picker = ImagePicker();
   var imageClassificationHelper = ImageClassificationHelper();
 
   @override
@@ -46,22 +48,29 @@ class _DoctorAnimationScreenState extends State<DoctorAnimationScreen> {
   }
 
   void onAddAttachmentClick() async {
-    XFile? attachment = await CommonFunctions.chooseImage(context: context);
-
+    ImageSource media = ImageSource.gallery;
+    // XFile? attachment = await CommonFunctions.chooseImage(context: context);
+    var attachment = await picker.pickImage(source: media);
     if (attachment != null) {
       String fileName = attachment.name;
       Uint8List bytes = await attachment.readAsBytes();
       _profileBytes.value = ImageModel(fileType: p.extension(fileName).replaceAll(".", ""), byteImage: bytes);
-
+  
       var image = img.decodeImage(bytes);
       // image = img.copyResize(image, 640, 640);
       image = img.copyResize(image!, width: 640, height: 640);
       log("${image.height}");
       log("my inference");
-
-
+      setState(() {
+        log("set state: ${attachment}");
+        image1 = attachment;
+      });
       var result = await imageClassificationHelper.inferenceImage(image);
-      log("${result}");
+      log("onAttached Result: ${result.last}");
+
+
+      // draw on image
+  
     }
   }
 
@@ -133,6 +142,27 @@ class _DoctorAnimationScreenState extends State<DoctorAnimationScreen> {
                   ),
                 ),
               ),
+              
+              image1 != null
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.file(
+                        //to show image, you type like this.
+                        File(image1!.path),
+                        fit: BoxFit.cover,
+                        width: MediaQuery.of(context).size.width,
+                        height: 300,
+                      ),
+                    ),
+                  )
+                : const Text(
+                    "No Image",
+                    style: TextStyle(fontSize: 20),
+                  )
+              
+              ,
               const Text("OR "),
               Padding(
                 padding: const EdgeInsets.all(20.0),
