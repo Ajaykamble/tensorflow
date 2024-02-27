@@ -25,12 +25,12 @@ import 'package:newapp/tensorflow/isolate_interface.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
 class ImageClassificationHelper {
-  //maleria
-  //static const modelPath = 'assets/tensor/model.tflite';
-  //static const labelsPath = 'assets/tensor/labels.txt';
-  //other
-  static const modelPath = 'assets/models/mobilenet_quant.tflite';
-  static const labelsPath = 'assets/models/labels.txt';
+  // // //maleria
+  static const modelPath = 'assets/tensor/yolov7-tiny.tflite';
+  static const labelsPath = 'assets/tensor/labels.txt';
+  // // other
+  // static const modelPath = 'assets/models/mobilenet_quant.tflite';
+  // static const labelsPath = 'assets/models/labels.txt';
 
   late final Interpreter interpreter;
   late final List<String> labels;
@@ -61,15 +61,16 @@ class ImageClassificationHelper {
     // Load model from assets
     interpreter = await Interpreter.fromAsset(modelPath);
     
-    // Get tensor input shape [1, 224, 224, 3]
+    // Get tensor input shape [1, 224, 224, 3] [1, 3, 640, 640]
 
     log("input length ${interpreter.getInputTensors().length}");
 
-    inputTensor = interpreter.getInputTensors().last;
+    inputTensor = interpreter.getInputTensors().last;   // Input shape
     log("input ${inputTensor}");
-    // Get tensor output shape [1, 1001]
+    // Get tensor output shape [1, 1001] [1, 7]
+    log("interpreter.getOutputTensors: ${interpreter.getOutputTensors()}");
     outputTensor = interpreter.getOutputTensors().last;
-    log("output ${outputTensor}");
+    log("output: ${outputTensor}");
     log('Interpreter loaded successfully');
   }
 
@@ -87,22 +88,23 @@ class ImageClassificationHelper {
     await isolateInference.start();
   }
 
-  Future<Map<String, double>> _inference(InferenceModel inferenceModel) async {
+  Future<List<List<double>>> _inference(InferenceModel inferenceModel) async {
     ReceivePort responsePort = ReceivePort();
     isolateInference.sendPort.send(inferenceModel..responsePort = responsePort.sendPort);
     // get inference result.
     var results = await responsePort.first;
+    log("result in _inference: ${results.last}");
     return results;
   }
 
   // inference camera frame
-  Future<Map<String, double>> inferenceCameraFrame(CameraImage cameraImage) async {
+  Future<List<List<double>>> inferenceCameraFrame(CameraImage cameraImage) async {
     var isolateModel = InferenceModel(cameraImage, null, interpreter.address, labels, inputTensor.shape, outputTensor.shape);
     return _inference(isolateModel);
   }
 
   // inference still image
-  Future<Map<String, double>> inferenceImage(Image image) async {
+  Future<List<List<double>>> inferenceImage(Image image) async {
     var isolateModel = InferenceModel(null, image, interpreter.address, labels, inputTensor.shape, outputTensor.shape);
     return _inference(isolateModel);
   }
