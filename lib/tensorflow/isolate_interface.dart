@@ -61,12 +61,7 @@ class IsolateInference {
       log("my input image size: $img");
 
       // resize original image to match model shape.
-      image_lib.Image imageInput = image_lib.copyResize(
-        img!,
-        width: isolateModel.inputShape[2],
-        height: isolateModel.inputShape[3],
-        maintainAspect: true
-      );
+      image_lib.Image imageInput = image_lib.copyResize(img!, width: isolateModel.inputShape[2], height: isolateModel.inputShape[3], maintainAspect: true);
 
       log("my input image size after: $img");
 
@@ -85,7 +80,6 @@ class IsolateInference {
       //   ),
       // );
 
-
       final imageMatrix = List.generate(
         3,
         (c) => List.generate(
@@ -94,7 +88,7 @@ class IsolateInference {
             imageInput.width,
             (x) {
               final pixel = imageInput.getPixel(x, y);
-              return pixel[c]/255;
+              return pixel[c] / 255;
             },
           ),
         ),
@@ -102,9 +96,7 @@ class IsolateInference {
 
       log("${imageMatrix.length}");
 
-
       log("${imageMatrix.length}");
-      
 
       // Set tensor input [1, 224, 224, 3]
       final input = [imageMatrix];
@@ -116,17 +108,15 @@ class IsolateInference {
       // Set tensor output [1, 1001]
       // final output = [List<int>.filled(isolateModel.outputShape[1], 0)];
       // final List<List<double>> output = [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]];
-      
+
       List<List<double>> output = List.generate(100, (index) {
         return List<double>.filled(7, 0.0);
       });
 
-      
       // log("output: ${output}");
       // List<List<int>> output = List.generate(
       //     100, (_) => List<int>.filled(7, 0)
       // );
-
 
       // // Run inference
       Interpreter interpreter = Interpreter.fromAddress(isolateModel.interpreterAddress);
@@ -135,7 +125,15 @@ class IsolateInference {
       log("After Result");
       // Get first output tensor
       final result = output;
-      log("Result Shape: ${output.length}, ${output[0].length}");
+
+      log('Processing outputs...');
+      // Location
+      final locationsRaw = output;
+      final locations = locationsRaw.map((list) {
+        return list.map((value) => (value * 300).toInt()).toList();
+      }).toList();
+      log('Locations: $locations');
+
       // log("Result: ${result}");
       // int maxScore = result.reduce((a, b) => a + b);
       // // Set classification map {label: points}
