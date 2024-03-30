@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:newapp/viewes/home2.dart';
 import 'package:newapp/viewes/home_screen.dart';
 import 'package:newapp/viewes/login.dart';
 
@@ -22,9 +21,12 @@ class MyApp extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return DoctorAnimationScreen();
+            return HomeScreen();
           } else {
-            return DoctorAnimationScreen();
+            return const  Scaffold(
+              body: LoginForm(),
+              resizeToAvoidBottomInset: false,
+            );
           }
         },
       ),
