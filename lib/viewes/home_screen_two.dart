@@ -4,7 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:newapp/tensorflow/image_classification.dart';
+import 'package:newapp/utils/common_fuctions.dart';
 import 'package:newapp/utils/image_model.dart';
+import 'package:newapp/viewes/result_screen.dart';
 
 import 'package:path/path.dart' as p;
 import 'package:image/image.dart' as img;
@@ -69,7 +71,7 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> {
   late Tensor outputTensor;
   late final Interpreter interpreter;
   late final List<String> labels;
-  Uint8List? outputImage;
+  //Uint8List? outputImage;
 
   Future<void> _loadModel() async {
     final options = InterpreterOptions();
@@ -115,21 +117,21 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> {
 
   onattachemnt() async {
     ImageSource media = ImageSource.gallery;
-    // XFile? attachment = await CommonFunctions.chooseImage(context: context);
-    var attachment = await picker.pickImage(source: media);
+    XFile? attachment = await CommonFunctions.chooseImage(context: context);
+    await Future.delayed(Duration(milliseconds: 600));
+    // var attachment = await picker.pickImage(source: media);
     if (attachment != null) {
+      setState(() {
+        image1 = attachment;
+      });
+      await Future.delayed(Duration(milliseconds: 600));
       String fileName = attachment.name;
       Uint8List bytes = await attachment.readAsBytes();
       _profileBytes.value = ImageModel(fileType: p.extension(fileName).replaceAll(".", ""), byteImage: bytes);
 
       var image = img.decodeImage(bytes);
-      // image = img.copyResize(image, 640, 640);
       image = img.copyResize(image!, width: 640, height: 640);
-      log("${image.height}");
-      log("my inference");
-      setState(() {
-        image1 = attachment;
-      });
+      
       var imageInput = img.copyResize(image, width: inputTensor.shape[2], height: inputTensor.shape[3], maintainAspect: true);
       final imageMatrix = List.generate(
         3,
@@ -147,10 +149,6 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> {
 
       log("${imageMatrix.length}");
       final input = [imageMatrix];
-
-      // log("input image values: ${input[0][0].sublist(0, 10)}");
-      log("GOR INPUT");
-      log("isolateModel.outputShape: ${outputTensor}");
       List<List<double>> output = List.generate(100, (index) {
         return List<double>.filled(7, 0.0);
       });
@@ -199,11 +197,16 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> {
         );
       }
       Uint8List finalBytes = img.encodeJpg(imageInput);
-      setState(() {
+      /* setState(() {
         outputImage = finalBytes;
-      });
+      }); */
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ResultScreen(result: finalBytes, infected: oneCount, zeroCount: zeroCount),
+          ));
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Normal : ${zeroCount} , Infected ${oneCount}")));
+      //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Normal : ${zeroCount} , Infected ${oneCount}")));
     }
   }
 
@@ -291,7 +294,7 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> {
                     ),
                   ),
                 ),
-                if (outputImage != null)
+                /*  if (outputImage != null)
                   Image.memory(
                     outputImage!,
                     height: 300,
@@ -299,7 +302,7 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> {
                   ),
                 const SizedBox(
                   height: 20,
-                )
+                ) */
               ],
             ),
           ],
@@ -308,7 +311,7 @@ class _HomeScreenTwoState extends State<HomeScreenTwo> {
     );
   }
 }
-
+/* 
 class ResultScreen extends StatefulWidget {
   final XFile imageFile;
 
@@ -359,3 +362,4 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 }
+ */

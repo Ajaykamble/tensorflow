@@ -39,13 +39,13 @@ class _CustomUploadWidgetState extends State<ChooseImageWidget> {
 
   double outerPadding = 20.0;
 
-  captureCameraImage() {
-    // bool hasCameraPermission = await PermissionService.permissionService.checkCameraPermission(context);
-    // if (hasCameraPermission) {
-    //   XFile? file = await ImagePicker().pickImage(source: ImageSource.camera);
-    //   widget.onFileSelected(file);
-    // }
-    Navigator.push(context, MaterialPageRoute(builder: (context) => CameraView()));
+  captureCameraImage() async{
+     bool hasCameraPermission = await PermissionService.permissionService.checkCameraPermission(context);
+     if (hasCameraPermission) {
+       XFile? file = await ImagePicker().pickImage(source: ImageSource.camera);
+       widget.onFileSelected(file);
+     }
+    
   }
 
   Future<void> chooseImage() async {
